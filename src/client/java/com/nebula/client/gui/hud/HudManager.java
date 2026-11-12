@@ -27,6 +27,12 @@ public final class HudManager {
 	}
 
 	public void register() {
+		// Underneath every vanilla HUD layer, so the hotbar and chat are not darkened.
+		HudElementRegistry.addFirst(Identifier.fromNamespaceAndPath(NebulaClient.MOD_ID, "vignette"), (g, delta) -> {
+			if (ClientManager.isReady() && ClientManager.get().modules().vignette.isEnabled()) {
+				ClientManager.get().modules().vignette.render(g);
+			}
+		});
 		HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(NebulaClient.MOD_ID, "hud"), this::render);
 		HudElementRegistry.replaceElement(VanillaHudElements.CROSSHAIR, vanilla -> (g, delta) -> {
 			if (!ClientManager.isReady() || !ClientManager.get().modules().crosshair.render(g)) {

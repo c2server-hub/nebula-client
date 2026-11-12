@@ -13,6 +13,10 @@ Client visuel « premium dark / liquid glass » pour Minecraft **1.21.11** sous 
 | ![halo](docs/screenshots/halo-jump-circles.png) | ![esp](docs/screenshots/target-esp.png) |
 | **Hit Effects (gerbe + onde de choc)** | **Halo vu de face** |
 | ![hit](docs/screenshots/hit-effects.png) | ![halo front](docs/screenshots/halo-front.png) |
+| **Custom Sky + Aurora (nuit, étoile filante)** | **Custom Sky de jour** |
+| ![aurora](docs/screenshots/aurora-custom-sky.png) | ![sky day](docs/screenshots/custom-sky-day.png) |
+| **Block Outline lumineux** | **Block Break FX (boîte fantôme + étincelles)** |
+| ![outline](docs/screenshots/block-outline.png) | ![break](docs/screenshots/block-break.png) |
 
 Toutes les captures proviennent du vrai client lancé dans cet environnement (Xvfb + Mesa llvmpipe, rendu logiciel, d'où les FPS bas affichés).
 
@@ -65,6 +69,12 @@ Le projet a été généré avec le générateur officiel Fabric (archive `nebul
 - **Target ESP** — autour de la cible (regardée ou dernière frappée) : colonne d'anneaux qui scanne de haut en bas et comètes en orbite avec traînée ; style, vitesse, nombre/taille des comètes, couleur.
 - **Hit Effects** — à chaque coup : gerbe d'étincelles balistiques (avec traînée) émise du côté du joueur + onde de choc ; nombre, vitesse, durée, taille, gravité, couleur.
 - **Custom Crosshair** — viseur SDF remplaçant le vanilla : Cross, Cross + Dot, Dot, Circle ; écart dynamique (déplacement, recharge), contour, halo, barre de recharge d'attaque, teinte rouge sur une entité.
+- **Custom Sky** — ciel procédural : dégradé zénith/horizon, champ d'étoiles scintillantes en rotation lente, bande de nébuleuse avec poussières sombres, étoiles filantes ; préréglages (Nebula, Twilight, Deep Space, Aurora Night, Custom), densité d'étoiles, nébuleuse, opacité, « toujours / la nuit seulement », fondu dans le brouillard à l'horizon, masquage des nuages vanilla.
+- **Aurora** — aurores boréales animées en rideaux : palettes (Borealis, Violet, Fire, Thème, Custom), intensité, vitesse, altitude, qualité, toujours / la nuit seulement ; atténuées sous la pluie.
+- **Block Outline** — remplace le contour de bloc : boîte lumineuse aux arêtes nettes (épaisseur constante en pixels), coins brillants, remplissage pulsé ; glisse en douceur d'un bloc à l'autre et apparaît/disparaît en fondu ; couleur du thème, perso, arc-en-ciel ou couleur du bloc visé.
+- **Block Break FX** — quand on casse un bloc : boîte fantôme qui s'agrandit et s'éteint + gerbe d'étincelles, dans la couleur du bloc cassé (ou couleur choisie).
+- **Ambient Particles** — particules d'ambiance lumineuses autour du joueur : Fireflies (lucioles qui clignotent), Stardust, Snow, Embers, Spirits ; nombre, rayon, taille, luminosité, couleurs.
+- **Vignette** — assombrissement cinématique des bords de l'écran (noir, thème ou perso), pulsation rouge « battement de cœur » sous 30 % de vie.
 
 **Interface**
 - **ClickGUI** — touche d'ouverture.
@@ -125,7 +135,9 @@ Pas de bus d'événements maison : les événements Fabric (tick, rendu monde, H
 
 **Traînées.** Historique circulaire préalloué (positions horodatées, réinitialisé en cas de téléportation) ; ruban construit chaque image dans un `ByteBufferBuilder` réutilisé, un seul draw call additif.
 
-**Effets « glow » du monde (Jump Circles, Halo, Target ESP, Hit Effects).** Un seul moteur générique (`GlowBatch`) : chaque module accumule des quads relatifs à la caméra — couchés au sol ou face caméra (orientation de la caméra) — puis les dessine en un draw call avec un shader qui donne la forme : `glow_ring` (anneau gaussien + halo + remplissage intérieur) ou `glow_spark` (point émissif). Mélange additif, test de profondeur sans écriture (occlusion correcte par les blocs et entités). Toutes les animations sont calculées à partir du temps réel (ex. trajectoires balistiques analytiques des étincelles), donc identiques quel que soit le nombre de FPS ; les états sont dans des tableaux préalloués. La cible commune (Target HUD / ESP / Hit Effects) est suivie par `TargetTracker`.
+**Effets « glow » du monde (Jump Circles, Halo, Target ESP, Hit Effects).** Un seul moteur générique (`GlowBatch`) : chaque module accumule des quads relatifs à la caméra — couchés au sol ou face caméra (orientation de la caméra) — puis les dessine en un draw call avec un shader qui donne la forme : `glow_ring` (anneau gaussien + halo + remplissage intérieur) ou `glow_spark` (point émissif). Mélange additif, test de profondeur sans écriture (occlusion correcte par les blocs et entités). Toutes les animations sont calculées à partir du temps réel (ex. trajectoires balistiques analytiques des étincelles), donc identiques quel que soit le nombre de FPS ; les états sont dans des tableaux préalloués. La cible commune (Target HUD / ESP / Hit Effects) est suivie par `TargetTracker`. Les étincelles (coups, blocs cassés) partagent un même `SparkPool`. Le contour de bloc utilise le shader `block_glow` : la distance aux arêtes est calculée en pixels écran (`fwidth`), donc l'épaisseur reste constante quelle que soit la distance.
+
+**Ciel et aurores.** Un triangle plein écran posé exactement sur le plan lointain (profondeur 1,0) avec un test de profondeur `LEQUAL` : il ne touche que les pixels où rien n'a été dessiné, c'est-à-dire le ciel, sans masque ni copie de tampon. Le rayon de vue par pixel est reconstruit à partir de l'inverse de la projection et de la rotation caméra. Le ciel (`sky.fsh`) combine bruit fractal 3D (nébuleuse), étoiles hachées par cellules et étoiles filantes, et se fond dans la couleur de brouillard vanilla (`Fog` UBO) près de l'horizon pour éviter une couture avec le terrain lointain. Les aurores (`aurora.fsh`, algorithme original) traversent une pile de couches horizontales où un bruit « ridged » dessine des plis fins, plus lumineux en bas et s'estompant vers le haut, ce qui donne les rayons verticaux ; mélange additif. Les nuages vanilla sont masqués par un mixin sur la passe `addCloudsPass` (option).
 
 **Animations indépendantes des FPS.** `Animation` intègre une approche exponentielle avec le temps réel écoulé (`1 - e^(-k·dt)`), chaque instance ayant sa propre horloge ; multiplicateur global réglable.
 
@@ -150,6 +162,7 @@ Testé en lançant Minecraft 1.21.11 + Fabric API dans cet environnement (Xvfb, 
 - Config : persistance après redémarrage, *Reset all* (retour aux valeurs par défaut sur disque), récupération d'un fichier JSON corrompu.
 - Retour au menu puis *Quit Game* : arrêt propre, ressources GPU libérées sans erreur.
 - Nouveaux visuels (compilation des shaders : 11/11) : Jump Circles au saut, Halo + étincelles, Target ESP sur un vrai cochon (anneaux + comètes, apparition animée), Hit Effects en le frappant (onde de choc, gerbe, PV 10 → 9 → 8), Custom Crosshair (teinte rouge sur la cible, barre de recharge), Notification lors d'un raccourci clavier, Target HUD sur une vraie cible.
+- Ciel et ambiance (14/14 shaders) : Custom Sky de nuit et de jour (étoiles, nébuleuse, étoile filante, nuages masqués, raccord au brouillard), Aurora (Borealis), Ambient Particles (Fireflies), Vignette ; Block Outline (contour lumineux, glisse vers le bloc suivant), Block Break FX (boîte fantôme couleur herbe + étincelles en cassant un bloc).
 - Logs sans erreur liée à Nebula (seules erreurs : absence de carte son et de compte Realms dans l'environnement).
 
 ### Implémenté mais non testé
@@ -157,6 +170,7 @@ Testé en lançant Minecraft 1.21.11 + Fabric API dans cet environnement (Xvfb, 
 - **Target HUD** : détection testée sur un cochon regardé ; le maintien après une attaque hors du viseur n'a pas été testé.
 - Trajectoires Circle / Ellipse / Lissajous, styles de traînée Ground / Halo, types de particules autres que Stardust, mode arc-en-ciel.
 - Options non exercées des nouveaux visuels : styles de crosshair autres que Cross + Dot, styles ESP « Ring » / « Comets » seuls, position des notifications en haut / à gauche, réglages personnalisés (seules les valeurs par défaut ont été vues en jeu).
+- Ciel/ambiance : seuls le préréglage Nebula, la palette Borealis et le type Fireflies ont été vus ; la pulsation de vignette à faible vie, le mode « la nuit seulement » et le comportement dans le Nether/End (désactivé car sans lumière du ciel) n'ont pas été testés.
 - Changement de taille de fenêtre en cours de jeu (code de réallocation présent, non exercé).
 - **Vrai GPU** (NVIDIA/AMD/Intel) : uniquement testé en rendu logiciel Mesa ; le rendu devrait être identique mais les performances réelles n'ont pas été mesurées (sous llvmpipe : ~17 FPS sans orbes, ~9 avec orbes + bloom, ce qui reflète le CPU, pas un GPU).
 - Serveurs multijoueur, compatibilité avec Sodium / Iris.
@@ -167,6 +181,8 @@ Testé en lançant Minecraft 1.21.11 + Fabric API dans cet environnement (Xvfb, 
 - Le verre floute l'image 3D, pas les autres couches GUI situées dessous (ex. éléments du HUD derrière la fenêtre du ClickGUI).
 - Le flou derrière le HUD (« HUD glass ») coûte une passe de flou par image ; désactivable dans *GUI Settings*.
 - Le ruban de traînée est vertical : vu de profil (déplacement perpendiculaire à la caméra) il apparaît comme une fine ligne.
+- Les aurores sont le visuel le plus coûteux (une boucle de bruit par pixel de ciel) ; baisser « Quality » si les FPS chutent. En rendu logiciel le jeu tombe à ~4 FPS avec ciel + aurores (contre ~20 sans), ce qui n'est pas représentatif d'une carte graphique.
+- Le ciel personnalisé en mode « Always » garde un ciel de nuit en plein jour (choix artistique) ; le terrain reste éclairé par le soleil vanilla.
 - Orbes masquées en 1re personne par défaut (option *First person*).
 
 ### Bugs trouvés pendant les tests et corrigés

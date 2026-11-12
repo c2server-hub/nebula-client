@@ -37,15 +37,15 @@ public final class WorldEffects implements AutoCloseable {
 		RenderTarget target = mc.getMainRenderTarget();
 		float partialTick = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
 
-		if (modules.motionTrails.isEnabled()) {
-			modules.motionTrails.render(trails, target, view, camera, partialTick);
-		}
 		WorldFrame worldFrame = new WorldFrame(target, view, camera, context.worldState().cameraRenderState.orientation, partialTick,
 			(System.nanoTime() - start) / 1e9F);
 		for (var module : modules.all()) {
 			if (module instanceof WorldRenderable renderable && module.isEnabled()) {
 				renderable.renderWorld(worldFrame, glow);
 			}
+		}
+		if (modules.motionTrails.isEnabled()) {
+			modules.motionTrails.render(trails, target, view, camera, partialTick);
 		}
 		if (modules.playerOrbit.isEnabled() && modules.playerOrbit.compute(frame, camera, partialTick)) {
 			orbs.render(frame, target, view);

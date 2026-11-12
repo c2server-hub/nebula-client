@@ -5,7 +5,8 @@
 	"client": [
 		"BufferBuilderAccessor",
 		"GuiRendererMixin",
-		"KeyboardHandlerMixin"
+		"KeyboardHandlerMixin",
+		"LevelRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

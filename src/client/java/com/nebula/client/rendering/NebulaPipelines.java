@@ -98,9 +98,27 @@ public final class NebulaPipelines {
 	/** Additive, depth-tested world quads whose shape comes entirely from the fragment shader. */
 	public static final RenderPipeline GLOW_RING = glowQuad("glow_ring");
 	public static final RenderPipeline GLOW_SPARK = glowQuad("glow_spark");
+	public static final RenderPipeline BLOCK_GLOW = glowQuad("block_glow");
+
+	/** Full-screen far-plane passes that only touch sky pixels (see sky.vsh). */
+	public static final RenderPipeline SKY = skyPass("sky", BlendFunction.TRANSLUCENT);
+	public static final RenderPipeline AURORA = skyPass("aurora", BlendFunction.ADDITIVE);
 
 	public static final List<RenderPipeline> ALL = List.of(SHAPE, GLASS, GAUSSIAN, DOWNSAMPLE, COMPOSITE_ADD, ORB, ORB_EMISSIVE, ORB_HALO, TRAIL,
-		GLOW_RING, GLOW_SPARK);
+		GLOW_RING, GLOW_SPARK, BLOCK_GLOW, SKY, AURORA);
+
+	private static RenderPipeline skyPass(String fragment, BlendFunction blend) {
+		return RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET)
+			.withLocation(id("pipeline/" + fragment))
+			.withVertexShader(id("core/sky"))
+			.withFragmentShader(id("core/" + fragment))
+			.withVertexFormat(DefaultVertexFormat.EMPTY, VertexFormat.Mode.TRIANGLES)
+			.withBlend(blend)
+			.withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
+			.withDepthWrite(false)
+			.withCull(false)
+			.build();
+	}
 
 	private static RenderPipeline glowQuad(String name) {
 		return RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET)

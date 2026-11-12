@@ -22,6 +22,6 @@ Reusing configuration cache.
 > Task :assemble
 > Task :build
 
-BUILD SUCCESSFUL in 19s
+BUILD SUCCESSFUL in 14s
 9 actionable tasks: 9 executed
 Configuration cache entry reused.

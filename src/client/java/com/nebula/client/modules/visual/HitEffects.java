@@ -4,6 +4,7 @@ import com.nebula.client.modules.Category;
 import com.nebula.client.modules.Module;
 import com.nebula.client.rendering.NebulaPipelines;
 import com.nebula.client.rendering.world.GlowBatch;
+import com.nebula.client.rendering.world.SparkPool;
 import com.nebula.client.rendering.world.WorldFrame;
 import com.nebula.client.rendering.world.WorldRenderable;
 import com.nebula.client.settings.BoolSetting;
@@ -11,16 +12,13 @@ import com.nebula.client.settings.ColorSetting;
 import com.nebula.client.settings.NumberSetting;
 import com.nebula.client.utilities.Animation;
 import com.nebula.client.utilities.ColorUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 
-/**
- * Burst of glowing sparks and a shockwave where you hit an entity. Spark motion is evaluated
- * analytically from the spawn time (ballistic), so it is identical at any frame rate.
- */
+/** Burst of glowing sparks and a shockwave where you hit an entity. */
 public final class HitEffects extends Module implements WorldRenderable {
-	private static final int MAX_SPARKS = 256;
 	private static final int MAX_WAVES = 8;
 	private static final float GRAVITY = -6.5F;
 
@@ -33,10 +31,7 @@ public final class HitEffects extends Module implements WorldRenderable {
 	private final ColorChoice color = new ColorChoice(add(ColorChoice.modeSetting()), add(new ColorSetting("Color", "Custom spark colour", 0xFFFF7A3D)));
 
 	private final RandomSource random = RandomSource.create();
-	private final double[] sx = new double[MAX_SPARKS], sy = new double[MAX_SPARKS], sz = new double[MAX_SPARKS];
-	private final float[] vx = new float[MAX_SPARKS], vy = new float[MAX_SPARKS], vz = new float[MAX_SPARKS], tone = new float[MAX_SPARKS];
-	private final long[] sparkBorn = new long[MAX_SPARKS];
-	private int nextSpark;
+	private final SparkPool sparks = new SparkPool(256);
 	private final double[] wx = new double[MAX_WAVES], wy = new double[MAX_WAVES], wz = new double[MAX_WAVES];
 	private final long[] waveBorn = new long[MAX_WAVES];
 	private int nextWave;
@@ -52,7 +47,7 @@ public final class HitEffects extends Module implements WorldRenderable {
 		}
 		double x = entity.getX(), y = entity.getY() + entity.getBbHeight() * 0.6, z = entity.getZ();
 		// Emit from the side facing the player so the burst is not hidden inside the entity's body.
-		var player = net.minecraft.client.Minecraft.getInstance().player;
+		var player = Minecraft.getInstance().player;
 		if (player != null) {
 			double dx = player.getX() - x, dz = player.getZ() - z;
 			double len = Math.sqrt(dx * dx + dz * dz);
@@ -62,64 +57,33 @@ public final class HitEffects extends Module implements WorldRenderable {
 				z += dz / len * push;
 			}
 		}
-		long now = System.nanoTime();
-		int n = count.intValue();
-		float v = speed.floatValue();
-		for (int i = 0; i < n; i++) {
-			int s = nextSpark;
-			nextSpark = (nextSpark + 1) % MAX_SPARKS;
-			// Uniform direction on the sphere, biased upwards for a fountain-like burst.
-			float theta = random.nextFloat() * Mth.TWO_PI;
-			float cosPhi = random.nextFloat() * 1.6F - 0.6F;
-			float sinPhi = Mth.sqrt(1 - Math.min(1, cosPhi * cosPhi));
-			float mag = v * (0.45F + random.nextFloat() * 0.55F);
-			sx[s] = x;
-			sy[s] = y;
-			sz[s] = z;
-			vx[s] = Mth.cos(theta) * sinPhi * mag;
-			vy[s] = cosPhi * mag;
-			vz[s] = Mth.sin(theta) * sinPhi * mag;
-			tone[s] = random.nextFloat();
-			sparkBorn[s] = now;
-		}
+		float seconds = System.nanoTime() / 1e9F;
+		burst(sparks, random, x, y, z, count.intValue(), speed.floatValue(), lifetime.floatValue(), size.floatValue(), i -> color.color(random.nextFloat(), seconds));
 		wx[nextWave] = x;
 		wy[nextWave] = y;
 		wz[nextWave] = z;
-		waveBorn[nextWave] = now;
+		waveBorn[nextWave] = System.nanoTime();
 		nextWave = (nextWave + 1) % MAX_WAVES;
+	}
+
+	/** Emits {@code n} sparks in a fountain-biased random direction. Shared with block break effects. */
+	static void burst(SparkPool pool, RandomSource random, double x, double y, double z, int n, float speed, float life, float size,
+					  java.util.function.IntUnaryOperator colorOf) {
+		for (int i = 0; i < n; i++) {
+			float theta = random.nextFloat() * Mth.TWO_PI;
+			float cosPhi = random.nextFloat() * 1.6F - 0.6F;
+			float sinPhi = Mth.sqrt(1 - Math.min(1, cosPhi * cosPhi));
+			float mag = speed * (0.45F + random.nextFloat() * 0.55F);
+			pool.emit(x, y, z, Mth.cos(theta) * sinPhi * mag, cosPhi * mag, Mth.sin(theta) * sinPhi * mag, colorOf.applyAsInt(i),
+				life * (0.75F + random.nextFloat() * 0.5F), size);
+		}
 	}
 
 	@Override
 	public void renderWorld(WorldFrame f, GlowBatch batch) {
-		long now = System.nanoTime();
-		float life = lifetime.floatValue();
-		float g = gravity.isOn() ? GRAVITY : 0;
-		float baseSize = size.floatValue();
-		batch.begin(f);
-		for (int s = 0; s < MAX_SPARKS; s++) {
-			if (sparkBorn[s] == 0) {
-				continue;
-			}
-			float age = (now - sparkBorn[s]) / 1e9F;
-			float t = age / life;
-			if (t >= 1) {
-				continue;
-			}
-			int c = color.color(tone[s], f.seconds());
-			// Head plus two trailing samples along the trajectory read as a motion-blurred streak.
-			for (int k = 0; k < 3; k++) {
-				float ta = Math.max(0, age - k * 0.018F);
-				float drag = 1 - Math.min(0.6F, ta * 0.8F);
-				double x = sx[s] + vx[s] * ta * drag;
-				double y = sy[s] + vy[s] * ta * drag + 0.5 * g * ta * ta;
-				double z = sz[s] + vz[s] * ta * drag;
-				float fade = (1 - t) * (k == 0 ? 1 : 0.5F / k);
-				batch.billboard(f.rx(x), f.ry(y), f.rz(z), baseSize * (1 - 0.5F * t) * (k == 0 ? 1 : 0.7F), ColorUtil.withAlpha(c, fade));
-			}
-		}
-		batch.end(NebulaPipelines.GLOW_SPARK, 0, 0, 0);
-
+		sparks.render(f, batch, gravity.isOn() ? GRAVITY : 0);
 		if (shockwave.isOn()) {
+			long now = System.nanoTime();
 			batch.begin(f);
 			for (int w = 0; w < MAX_WAVES; w++) {
 				if (waveBorn[w] == 0) {

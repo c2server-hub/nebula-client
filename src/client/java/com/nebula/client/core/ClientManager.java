@@ -8,6 +8,8 @@ import com.nebula.client.rendering.world.WorldEffects;
 import com.nebula.client.settings.Setting;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
+import net.fabricmc.fabric.api.event.client.player.ClientPlayerBlockBreakEvents;
 import net.fabricmc.loader.api.FabricLoader;
 
 /** Owns every subsystem and wires them to Fabric events. */
@@ -36,6 +38,8 @@ public final class ClientManager {
 		ModuleEvents.addListener(m.modules.notifications::moduleToggled);
 		m.targets.register();
 		m.targets.onAttack(m.modules.hitEffects::onHit);
+		ClientPlayerBlockBreakEvents.AFTER.register((level, player, pos, state) -> m.modules.blockBreak.onBreak(level, pos, state));
+		WorldRenderEvents.BEFORE_BLOCK_OUTLINE.register((context, outline) -> !m.modules.blockOutline.isEnabled());
 		m.config.load();
 
 		m.hud.add(m.modules.customHud.elements.get(0));

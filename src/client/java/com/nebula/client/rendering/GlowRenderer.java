@@ -15,6 +15,11 @@ public final class GlowRenderer {
 		ShapeElement.builder(x, y, w, h).radius(radius).fill(color).soft(softness, 1, false).submit(g);
 	}
 
+	/** Gaussian-blurred filled rectangle with an intensity multiplier (used for screen-edge fades). */
+	public static void softRect(GuiGraphics g, float x, float y, float w, float h, float softness, int color, float intensity) {
+		ShapeElement.builder(x, y, w, h).fill(color).soft(softness, intensity, false).submit(g);
+	}
+
 	/** Halo that only exists outside the shape, so it can sit under translucent content without tinting it. */
 	public static void glow(GuiGraphics g, float x, float y, float w, float h, float radius, float softness, int color, float intensity) {
 		if (softness <= 0 || intensity <= 0) {

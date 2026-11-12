@@ -61,6 +61,25 @@ public final class GlowBatch implements AutoCloseable {
 		b.addVertex(x + rx - ux, y + ry - uy, z + rz - uz).setUv(1, -1).setColor(argb);
 	}
 
+	/** Arbitrary quad; corners get UVs (-1,-1), (-1,1), (1,1), (1,-1) in order. */
+	public void quad(float x0, float y0, float z0, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, int argb) {
+		BufferBuilder b = builder();
+		b.addVertex(x0, y0, z0).setUv(-1, -1).setColor(argb);
+		b.addVertex(x1, y1, z1).setUv(-1, 1).setColor(argb);
+		b.addVertex(x2, y2, z2).setUv(1, 1).setColor(argb);
+		b.addVertex(x3, y3, z3).setUv(1, -1).setColor(argb);
+	}
+
+	/** All six faces of a camera-relative box; side faces use V along the vertical axis. */
+	public void box(float x0, float y0, float z0, float x1, float y1, float z1, int argb) {
+		quad(x0, y0, z0, x0, y0, z1, x1, y0, z1, x1, y0, z0, argb);
+		quad(x0, y1, z0, x0, y1, z1, x1, y1, z1, x1, y1, z0, argb);
+		quad(x0, y0, z0, x0, y1, z0, x1, y1, z0, x1, y0, z0, argb);
+		quad(x0, y0, z1, x0, y1, z1, x1, y1, z1, x1, y0, z1, argb);
+		quad(x0, y0, z0, x0, y1, z0, x0, y1, z1, x0, y0, z1, argb);
+		quad(x1, y0, z0, x1, y1, z0, x1, y1, z1, x1, y0, z1, argb);
+	}
+
 	/** Draws everything added since {@link #begin}; the three shader parameters are passed through ModelOffset. */
 	public void end(RenderPipeline pipeline, float p0, float p1, float p2) {
 		BufferBuilder b = builder();
