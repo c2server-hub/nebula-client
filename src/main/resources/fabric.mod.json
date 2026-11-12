@@ -2,32 +2,18 @@
 	"schemaVersion": 1,
 	"id": "nebula",
 	"version": "${version}",
-	"name": "nebula",
-	"description": "This is an example description! Tell everyone what your mod is about!",
-	"authors": [
-		"Me!"
-	],
-	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
-	},
+	"name": "Nebula Client",
+	"description": "Premium visual client: custom GPU UI engine (SDF shapes, gaussian blur, glass), 3D emissive orbs with bloom, motion trails and a fully interactive ClickGUI.",
+	"authors": ["Nebula"],
+	"contact": {},
 	"license": "CC0-1.0",
 	"icon": "assets/nebula/icon.png",
-	"environment": "*",
+	"environment": "client",
 	"entrypoints": {
-		"main": [
-			"com.nebula.Nebula"
-		],
-		"client": [
-			"com.nebula.client.NebulaClient"
-		]
+		"client": ["com.nebula.client.NebulaClient"]
 	},
 	"mixins": [
-		"nebula.mixins.json",
-		{
-			"config": "nebula.client.mixins.json",
-			"environment": "client"
-		}
+		{ "config": "nebula.client.mixins.json", "environment": "client" }
 	],
 	"depends": {
 		"fabricloader": ">=0.20.1",
