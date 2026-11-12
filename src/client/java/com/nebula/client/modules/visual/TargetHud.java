@@ -16,13 +16,10 @@ import com.nebula.client.settings.ModeSetting;
 import com.nebula.client.settings.NumberSetting;
 import com.nebula.client.utilities.Animation;
 import com.nebula.client.utilities.ColorUtil;
-import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.jspecify.annotations.Nullable;
 
@@ -34,36 +31,19 @@ public final class TargetHud extends Module {
 	public final ModeSetting healthStyle = add(new ModeSetting("Health bar", "Health bar colouring", "Gradient", "Gradient", "Health", "Theme"));
 	public final BoolSetting showArmor = add(new BoolSetting("Show armor", "Display the target's armor points", true));
 	public final BoolSetting showDistance = add(new BoolSetting("Show distance", "Display distance to the target", true));
-	private final NumberSetting posX = add(HudElement.position("Target X", 0.56));
-	private final NumberSetting posY = add(HudElement.position("Target Y", 0.56));
+	private final NumberSetting posX = add(HudElement.position("Target X", 0.62));
+	private final NumberSetting posY = add(HudElement.position("Target Y", 0.78));
 
 	public final HudElement element = new Element();
 	private @Nullable LivingEntity target;
-	private @Nullable LivingEntity lastAttacked;
-	private long lastAttackTime;
 
 	public TargetHud() {
 		super("target_hud", "Target HUD", "Health and info of the entity you are fighting or looking at", Category.VISUAL, true, false);
-		AttackEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
-			if (level.isClientSide() && entity instanceof LivingEntity living) {
-				lastAttacked = living;
-				lastAttackTime = System.currentTimeMillis();
-			}
-			return InteractionResult.PASS;
-		});
 	}
 
 	@Override
 	public void onTick() {
-		Minecraft mc = Minecraft.getInstance();
-		Entity looked = mc.crosshairPickEntity;
-		LivingEntity next = null;
-		if (looked instanceof LivingEntity living && mc.player != null && living.distanceTo(mc.player) <= range.get()) {
-			next = living;
-		} else if (lastAttacked != null && lastAttacked.isAlive() && System.currentTimeMillis() - lastAttackTime < hold.get() * 1000) {
-			next = lastAttacked;
-		}
-		target = next;
+		target = ClientManager.get().targets().current(range.get(), hold.get());
 	}
 
 	private final class Element extends HudElement {

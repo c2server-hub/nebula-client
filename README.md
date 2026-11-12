@@ -9,6 +9,10 @@ Client visuel « premium dark / liquid glass » pour Minecraft **1.21.11** sous 
 | ![orbs](docs/screenshots/orbs-trail-helix.png) | ![night](docs/screenshots/night-particles-trail.png) |
 | **Color picker HSV** | **Éditeur de HUD (glisser-déposer)** |
 | ![picker](docs/screenshots/clickgui-colorpicker.png) | ![hud editor](docs/screenshots/hud-editor.png) |
+| **Halo + Jump Circles + orbes** | **Target ESP (anneaux + comètes) et crosshair** |
+| ![halo](docs/screenshots/halo-jump-circles.png) | ![esp](docs/screenshots/target-esp.png) |
+| **Hit Effects (gerbe + onde de choc)** | **Halo vu de face** |
+| ![hit](docs/screenshots/hit-effects.png) | ![halo front](docs/screenshots/halo-front.png) |
 
 Toutes les captures proviennent du vrai client lancé dans cet environnement (Xvfb + Mesa llvmpipe, rendu logiciel, d'où les FPS bas affichés).
 
@@ -56,9 +60,15 @@ Le projet a été généré avec le générateur officiel Fabric (archive `nebul
 - **Custom HUD** — watermark (logo + FPS), panneau d'infos (XYZ, vitesse, orientation), liste animée des modules actifs, halo d'accent, échelle, éditeur de disposition.
 - **Target HUD** — entité visée (ou dernière attaquée) : visage du joueur / monogramme, PV + absorption, armure, distance, barre de vie animée (dégradé / couleur selon PV / thème).
 - **World Time** — heure du monde Minecraft (24 h ou 12 h), jour, phase, arc soleil/lune.
+- **Jump Circles** — anneaux lumineux qui s'étendent au sol au saut et/ou à l'atterrissage : rayon, durée, épaisseur, remplissage, échos, couleur (thème / perso / arc-en-ciel).
+- **Halo** — auréole lumineuse flottant au-dessus de la tête avec étincelles en orbite : rayon, hauteur, épaisseur, éclat, nombre d'étincelles, couleur.
+- **Target ESP** — autour de la cible (regardée ou dernière frappée) : colonne d'anneaux qui scanne de haut en bas et comètes en orbite avec traînée ; style, vitesse, nombre/taille des comètes, couleur.
+- **Hit Effects** — à chaque coup : gerbe d'étincelles balistiques (avec traînée) émise du côté du joueur + onde de choc ; nombre, vitesse, durée, taille, gravité, couleur.
+- **Custom Crosshair** — viseur SDF remplaçant le vanilla : Cross, Cross + Dot, Dot, Circle ; écart dynamique (déplacement, recharge), contour, halo, barre de recharge d'attaque, teinte rouge sur une entité.
 
 **Interface**
 - **ClickGUI** — touche d'ouverture.
+- **Notifications** — toasts en verre (slide-in, barre de progression) à chaque activation/désactivation ; coin de l'écran, durée ; se placent au-dessus des panneaux du HUD du même coin.
 - **Theme Editor** — 5 préréglages (Nebula, Violet Haze, Aurora, Crimson, Graphite) + 7 couleurs éditables (fond, panneau, accent, accent 2, bordure avec alpha, texte, texte secondaire).
 - **GUI Settings** — échelle, vitesse des animations, opacité, rayon des coins, épaisseur des bordures, flou on/off + rayon, réfraction du verre, intensité des halos, verre sur le HUD.
 
@@ -115,6 +125,8 @@ Pas de bus d'événements maison : les événements Fabric (tick, rendu monde, H
 
 **Traînées.** Historique circulaire préalloué (positions horodatées, réinitialisé en cas de téléportation) ; ruban construit chaque image dans un `ByteBufferBuilder` réutilisé, un seul draw call additif.
 
+**Effets « glow » du monde (Jump Circles, Halo, Target ESP, Hit Effects).** Un seul moteur générique (`GlowBatch`) : chaque module accumule des quads relatifs à la caméra — couchés au sol ou face caméra (orientation de la caméra) — puis les dessine en un draw call avec un shader qui donne la forme : `glow_ring` (anneau gaussien + halo + remplissage intérieur) ou `glow_spark` (point émissif). Mélange additif, test de profondeur sans écriture (occlusion correcte par les blocs et entités). Toutes les animations sont calculées à partir du temps réel (ex. trajectoires balistiques analytiques des étincelles), donc identiques quel que soit le nombre de FPS ; les états sont dans des tableaux préalloués. La cible commune (Target HUD / ESP / Hit Effects) est suivie par `TargetTracker`.
+
 **Animations indépendantes des FPS.** `Animation` intègre une approche exponentielle avec le temps réel écoulé (`1 - e^(-k·dt)`), chaque instance ayant sa propre horloge ; multiplicateur global réglable.
 
 **Configuration.** `config/nebula/config.json` (Gson). Sauvegarde automatique 1,5 s après le dernier changement, à la fermeture du GUI et à l'arrêt ; écriture atomique (fichier temporaire + déplacement) ; valeurs validées (bornes, palette de modes, couleurs hex) ; clés absentes → valeurs par défaut ; fichier illisible → déplacé en `config.corrupt-<horodatage>.json`, valeurs par défaut restaurées.
@@ -137,12 +149,14 @@ Testé en lançant Minecraft 1.21.11 + Fabric API dans cet environnement (Xvfb, 
 - HUD : watermark, infos, liste de modules, heure du monde (jour et nuit) ; éditeur de HUD (glisser-déposer, position sauvegardée) ; Target HUD affiché (aperçu avec les données du joueur).
 - Config : persistance après redémarrage, *Reset all* (retour aux valeurs par défaut sur disque), récupération d'un fichier JSON corrompu.
 - Retour au menu puis *Quit Game* : arrêt propre, ressources GPU libérées sans erreur.
+- Nouveaux visuels (compilation des shaders : 11/11) : Jump Circles au saut, Halo + étincelles, Target ESP sur un vrai cochon (anneaux + comètes, apparition animée), Hit Effects en le frappant (onde de choc, gerbe, PV 10 → 9 → 8), Custom Crosshair (teinte rouge sur la cible, barre de recharge), Notification lors d'un raccourci clavier, Target HUD sur une vraie cible.
 - Logs sans erreur liée à Nebula (seules erreurs : absence de carte son et de compte Realms dans l'environnement).
 
 ### Implémenté mais non testé
 
-- **Target HUD sur une vraie cible** : l'affichage est vérifié via l'aperçu, mais la détection (entité sous le réticule / dernière attaquée) n'a pas pu être visée de façon fiable avec xdotool.
+- **Target HUD** : détection testée sur un cochon regardé ; le maintien après une attaque hors du viseur n'a pas été testé.
 - Trajectoires Circle / Ellipse / Lissajous, styles de traînée Ground / Halo, types de particules autres que Stardust, mode arc-en-ciel.
+- Options non exercées des nouveaux visuels : styles de crosshair autres que Cross + Dot, styles ESP « Ring » / « Comets » seuls, position des notifications en haut / à gauche, réglages personnalisés (seules les valeurs par défaut ont été vues en jeu).
 - Changement de taille de fenêtre en cours de jeu (code de réallocation présent, non exercé).
 - **Vrai GPU** (NVIDIA/AMD/Intel) : uniquement testé en rendu logiciel Mesa ; le rendu devrait être identique mais les performances réelles n'ont pas été mesurées (sous llvmpipe : ~17 FPS sans orbes, ~9 avec orbes + bloom, ce qui reflète le CPU, pas un GPU).
 - Serveurs multijoueur, compatibilité avec Sodium / Iris.

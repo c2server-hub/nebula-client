@@ -95,7 +95,25 @@ public final class NebulaPipelines {
 		.withCull(false)
 		.build();
 
-	public static final List<RenderPipeline> ALL = List.of(SHAPE, GLASS, GAUSSIAN, DOWNSAMPLE, COMPOSITE_ADD, ORB, ORB_EMISSIVE, ORB_HALO, TRAIL);
+	/** Additive, depth-tested world quads whose shape comes entirely from the fragment shader. */
+	public static final RenderPipeline GLOW_RING = glowQuad("glow_ring");
+	public static final RenderPipeline GLOW_SPARK = glowQuad("glow_spark");
+
+	public static final List<RenderPipeline> ALL = List.of(SHAPE, GLASS, GAUSSIAN, DOWNSAMPLE, COMPOSITE_ADD, ORB, ORB_EMISSIVE, ORB_HALO, TRAIL,
+		GLOW_RING, GLOW_SPARK);
+
+	private static RenderPipeline glowQuad(String name) {
+		return RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET)
+			.withLocation(id("pipeline/" + name))
+			.withVertexShader(id("core/trail"))
+			.withFragmentShader(id("core/" + name))
+			.withVertexFormat(DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS)
+			.withBlend(BlendFunction.ADDITIVE)
+			.withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
+			.withDepthWrite(false)
+			.withCull(false)
+			.build();
+	}
 
 	private static boolean verified;
 

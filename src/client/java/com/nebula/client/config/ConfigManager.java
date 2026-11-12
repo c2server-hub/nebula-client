@@ -51,6 +51,11 @@ public final class ConfigManager {
 		lastStatus = status;
 	}
 
+	/** True while values are being applied from disk or reset, so toggles are not user actions. */
+	public boolean isLoading() {
+		return loading;
+	}
+
 	public void markDirty() {
 		if (loading) {
 			return;

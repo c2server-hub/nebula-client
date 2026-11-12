@@ -18,6 +18,7 @@ public final class ClientManager {
 	private final ConfigManager config;
 	private final HudManager hud = new HudManager();
 	private final WorldEffects worldEffects = new WorldEffects();
+	private final TargetTracker targets = new TargetTracker();
 
 	private ClientManager() {
 		this.modules = new ModuleManager();
@@ -31,7 +32,10 @@ public final class ClientManager {
 		ClientManager m = new ClientManager();
 		instance = m;
 		Setting.setChangeHook(m.config::markDirty);
-		ModuleEvents.setListener(module -> m.config.markDirty());
+		ModuleEvents.addListener(module -> m.config.markDirty());
+		ModuleEvents.addListener(m.modules.notifications::moduleToggled);
+		m.targets.register();
+		m.targets.onAttack(m.modules.hitEffects::onHit);
 		m.config.load();
 
 		m.hud.add(m.modules.customHud.elements.get(0));
@@ -75,5 +79,9 @@ public final class ClientManager {
 
 	public HudManager hud() {
 		return hud;
+	}
+
+	public TargetTracker targets() {
+		return targets;
 	}
 }
