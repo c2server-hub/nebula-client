@@ -27,6 +27,11 @@ public final class SearchBar extends UiComponent {
 		this.focused = focused;
 	}
 
+	public void clear() {
+		text.setLength(0);
+		focused = false;
+	}
+
 	@Override
 	public void render(GuiGraphics g, Theme t, double mx, double my) {
 		float hv = updateHover(mx, my);

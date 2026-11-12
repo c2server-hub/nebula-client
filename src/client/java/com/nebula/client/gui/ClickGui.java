@@ -48,6 +48,7 @@ public final class ClickGui extends Screen {
 	private final SidebarPanel sidebar;
 	private Category category = lastCategory;
 	private boolean closing;
+	private boolean swallowNextChar;
 	private long resetArmedAt;
 	private float scale = 1, wx, wy;
 
@@ -80,6 +81,7 @@ public final class ClickGui extends Screen {
 	private void setCategory(Category c) {
 		category = c;
 		lastCategory = c;
+		search.clear();
 	}
 
 	private void select(Module module) {
@@ -203,7 +205,10 @@ public final class ClickGui extends Screen {
 	@Override
 	public boolean keyPressed(KeyEvent event) {
 		int key = event.key();
+		swallowNextChar = false;
 		if (settings.isCapturingKeys()) {
+			// GLFW delivers a char event right after the key event; it belongs to the binding, not to the search box.
+			swallowNextChar = true;
 			return settings.keyPressed(key, event.modifiers());
 		}
 		if (search.keyPressed(key, event.modifiers())) {
@@ -226,7 +231,8 @@ public final class ClickGui extends Screen {
 
 	@Override
 	public boolean charTyped(CharacterEvent event) {
-		if (settings.isCapturingKeys()) {
+		if (settings.isCapturingKeys() || swallowNextChar) {
+			swallowNextChar = false;
 			return true;
 		}
 		return search.charTyped(event.codepoint());

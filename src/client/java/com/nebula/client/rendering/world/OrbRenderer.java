@@ -104,10 +104,12 @@ public final class OrbRenderer implements AutoCloseable {
 	}
 
 	private void composite(CommandEncoder encoder, GpuTextureView bloom, GpuTextureView output, float strength) {
+		// Buffer writes are commands too, so they must happen before the pass is opened.
+		GpuBuffer config = compositeConfig.get(0, 0, strength);
 		try (RenderPass pass = encoder.createRenderPass(() -> "Nebula bloom composite", output, OptionalInt.empty())) {
 			pass.setPipeline(NebulaPipelines.COMPOSITE_ADD);
 			pass.bindTexture("InSampler", bloom, RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR));
-			pass.setUniform("BlurConfig", compositeConfig.get(0, 0, strength));
+			pass.setUniform("BlurConfig", config);
 			pass.draw(0, 3);
 		}
 	}

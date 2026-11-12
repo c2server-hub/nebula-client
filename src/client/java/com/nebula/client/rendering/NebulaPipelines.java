@@ -102,9 +102,12 @@ public final class NebulaPipelines {
 	private NebulaPipelines() {
 	}
 
-	/** Compiles every pipeline once and logs the result, so a broken shader is reported instead of silently drawing nothing. */
+	/**
+	 * Compiles every pipeline once and logs the result, so a broken shader is reported instead of silently drawing nothing.
+	 * Must only run after the resource reload, otherwise shader sources are not available yet.
+	 */
 	public static void verifyOnce() {
-		if (verified) {
+		if (verified || net.minecraft.client.Minecraft.getInstance().getOverlay() != null) {
 			return;
 		}
 		verified = true;

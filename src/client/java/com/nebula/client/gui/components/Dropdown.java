@@ -39,11 +39,20 @@ public final class Dropdown extends SettingComponent<ModeSetting> {
 		RoundedRenderer.rect(g, bx, by, boxW, bh, 6, ColorUtil.withAlpha(ColorUtil.mix(t.panel(), 0xFFFFFFFF, 0.08F + 0.06F * hv), 1F), 1,
 			ColorUtil.mix(t.border(), t.accent(), o));
 		RenderUtils.text(g, RenderUtils.ellipsize(setting.get(), boxW - 22, NFont.TEXT), bx + 7, by + bh / 2 - 4, t.text(), NFont.TEXT);
-		// Chevron rotates by flipping between two strokes.
-		float cx = bx + boxW - 10, cy = by + bh / 2;
-		float dir = 1 - 2 * o;
-		RoundedRenderer.rect(g, cx - 3, cy - 1 * dir - 0.5F, 3.5F, 1.2F, 0.6F, t.textDim());
-		RoundedRenderer.rect(g, cx - 0.5F, cy - 1 * dir - 0.5F, 3.5F, 1.2F, 0.6F, t.textDim());
+		// Chevron: two rotated strokes, flipped vertically as the list opens.
+		float cx = bx + boxW - 11, cy = by + bh / 2;
+		int chevron = ColorUtil.mix(t.textDim(), t.accent(), o);
+		g.pose().pushMatrix();
+		g.pose().translate(cx, cy);
+		g.pose().scale(1, 1 - 2 * o);
+		for (int side = -1; side <= 1; side += 2) {
+			g.pose().pushMatrix();
+			g.pose().translate(side * 1.6F, 0);
+			g.pose().rotate(side * -0.785F);
+			RoundedRenderer.rect(g, -2.4F, -0.65F, 4.8F, 1.3F, 0.65F, chevron);
+			g.pose().popMatrix();
+		}
+		g.pose().popMatrix();
 		if (o > 0.01F) {
 			float listY = y + ROW;
 			float listH = (setting.modes().size() * OPTION + 4) * o;

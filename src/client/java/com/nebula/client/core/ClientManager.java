@@ -49,6 +49,7 @@ public final class ClientManager {
 		ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
 			m.config.save();
 			m.worldEffects.close();
+			com.nebula.client.rendering.BlurRenderer.INSTANCE.close();
 		});
 		NebulaClient.LOGGER.info("[Nebula] Initialised {} modules", m.modules.all().size());
 	}

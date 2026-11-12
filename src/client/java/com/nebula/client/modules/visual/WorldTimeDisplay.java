@@ -87,7 +87,10 @@ public final class WorldTimeDisplay extends Module {
 				// Sun travels across the upper half by day, moon by night.
 				float local = night ? (progress - 0.54F) / 0.44F : ((progress + 0.02F) % 1F) / 0.56F;
 				float angle = Mth.PI * (1 - Math.clamp(local, 0, 1));
+				// Only the sky half of the dial is shown.
+				RenderUtils.scissor(g, cx - r - 3, cy - r - 4, r * 2 + 6, r + 5);
 				RoundedRenderer.outline(g, cx - r, cy - r, r * 2, r * 2, r, 1, ColorUtil.withAlpha(t.textDim(), 0.35F));
+				g.disableScissor();
 				RoundedRenderer.rect(g, cx - r - 2, cy, r * 2 + 4, 0.75F, 0, ColorUtil.withAlpha(t.textDim(), 0.5F));
 				float bx = cx + Mth.cos(angle) * r;
 				float by = cy - Mth.sin(angle) * r;

@@ -35,7 +35,7 @@ public final class CustomHud extends Module {
 	private final NumberSetting watermarkX = add(HudElement.position("Watermark X", 0.005));
 	private final NumberSetting watermarkY = add(HudElement.position("Watermark Y", 0.01));
 	private final NumberSetting infoX = add(HudElement.position("Info X", 0.005));
-	private final NumberSetting infoY = add(HudElement.position("Info Y", 0.99));
+	private final NumberSetting infoY = add(HudElement.position("Info Y", 0.66));
 	private final NumberSetting listX = add(HudElement.position("List X", 0.995));
 	private final NumberSetting listY = add(HudElement.position("List Y", 0.01));
 
@@ -116,9 +116,8 @@ public final class CustomHud extends Module {
 				return;
 			}
 			lines[0] = String.format(Locale.ROOT, "XYZ  %.0f, %.0f, %.0f", p.getX(), p.getY(), p.getZ());
-			double bps = p.getDeltaMovement().horizontalDistance() * 20;
 			double dx = p.getX() - p.xo, dz = p.getZ() - p.zo;
-			bps = Math.sqrt(dx * dx + dz * dz) * 20;
+			double bps = Math.sqrt(dx * dx + dz * dz) * 20;
 			lines[1] = String.format(Locale.ROOT, "Speed  %.1f b/s", bps);
 			String dir = p.getDirection().getName();
 			lines[2] = "Facing  " + Character.toUpperCase(dir.charAt(0)) + dir.substring(1);

@@ -59,10 +59,10 @@ public final class BlurRenderer {
 
 	/** Called from the GUI renderer before it draws anything this frame. */
 	public void renderBackdropIfRequested() {
-		NebulaPipelines.verifyOnce();
 		if (!requested) {
 			return;
 		}
+		NebulaPipelines.verifyOnce();
 		requested = false;
 		RenderTarget main = Minecraft.getInstance().getMainRenderTarget();
 		GpuTextureView source = main.getColorTextureView();
@@ -70,5 +70,11 @@ public final class BlurRenderer {
 			return;
 		}
 		blur.run(source, radius, iterations);
+	}
+
+	public void close() {
+		blur.close();
+		setup = null;
+		setupView = null;
 	}
 }

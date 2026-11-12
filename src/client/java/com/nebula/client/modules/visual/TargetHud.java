@@ -1,7 +1,6 @@
 package com.nebula.client.modules.visual;
 
 import com.nebula.client.core.ClientManager;
-import com.nebula.client.gui.HudEditorScreen;
 import com.nebula.client.gui.Style;
 import com.nebula.client.gui.hud.HudElement;
 import com.nebula.client.gui.themes.Theme;
@@ -142,11 +141,6 @@ public final class TargetHud extends Module {
 				RoundedRenderer.gradient(g, tx, 32, barW * hp, 5, 2.5F, gradient);
 			}
 			g.pose().popMatrix();
-		}
-
-		@Override
-		public boolean isVisible() {
-			return super.isVisible() && !(Minecraft.getInstance().screen instanceof HudEditorScreen);
 		}
 	}
 }

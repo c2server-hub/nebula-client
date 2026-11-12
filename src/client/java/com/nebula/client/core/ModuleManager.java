@@ -64,18 +64,20 @@ public final class ModuleManager {
 		return result;
 	}
 
-	public void onKeyPressed(int key) {
+	/** Returns true when the key opened the ClickGUI (the event is then consumed). */
+	public boolean onKeyPressed(int key) {
 		// The GUI must stay reachable even if its key was unbound.
 		int guiKey = clickGui.keybind().isBound() ? clickGui.keybind().key() : org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT_SHIFT;
 		if (key == guiKey) {
 			clickGui.open();
-			return;
+			return true;
 		}
 		for (Module m : modules) {
 			if (m != clickGui && !m.isAlwaysActive() && m.keybind().isBound() && m.keybind().key() == key) {
 				m.toggle();
 			}
 		}
+		return false;
 	}
 
 	public void tick() {

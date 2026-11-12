@@ -15,7 +15,7 @@ import net.minecraft.world.phys.Vec3;
 
 public final class PlayerOrbit extends Module {
 	public final NumberSetting count = add(new NumberSetting("Count", "Number of orbs", 5, 1, OrbFrame.MAX, 1));
-	public final NumberSetting size = add(new NumberSetting("Size", "Orb radius in blocks", 0.09, 0.03, 0.4, 0.01));
+	public final NumberSetting size = add(new NumberSetting("Size", "Orb radius in blocks", 0.12, 0.03, 0.4, 0.01));
 	public final ModeSetting trajectory = add(new ModeSetting("Trajectory", "Orbit shape", "Atom", "Circle", "Ellipse", "Atom", "Helix", "Lissajous"));
 	public final NumberSetting speed = add(new NumberSetting("Speed", "Revolutions per second", 0.35, 0, 2, 0.01));
 	public final NumberSetting speedVariance = add(new NumberSetting("Speed variance", "How differently each orb moves", 0.3, 0, 1, 0.05));

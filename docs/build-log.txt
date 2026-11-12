@@ -1,0 +1,31 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.8.2/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Calculating task graph as no cached configuration is available for tasks: clean build
+
+> Configure project :
+Fabric Loom: 1.19.4
+
+> Task :validateAccessWidener NO-SOURCE
+> Task :clean
+> Task :compileJava NO-SOURCE
+> Task :processClientResources
+> Task :processIncludeJars
+> Task :sourcesJar
+> Task :processResources
+> Task :classes
+> Task :compileClientJava
+> Task :jar
+> Task :remapSourcesJar
+> Task :clientClasses
+> Task :compileTestJava NO-SOURCE
+> Task :processTestResources NO-SOURCE
+> Task :testClasses UP-TO-DATE
+> Task :test NO-SOURCE
+> Task :check UP-TO-DATE
+> Task :remapJar
+> Task :assemble
+> Task :build
+
+BUILD SUCCESSFUL in 21s
+9 actionable tasks: 9 executed
+Configuration cache entry stored.

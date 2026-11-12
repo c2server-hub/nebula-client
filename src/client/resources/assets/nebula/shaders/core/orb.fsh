@@ -38,10 +38,12 @@ void main() {
 
     vec3 base = ColorModulator.rgb;
     float intensity = ColorModulator.a;
-    vec3 core = mix(base, vec3(1.0), pow(facing, 3.0) * 0.85);            // white-hot centre
-    vec3 rim = base * pow(1.0 - facing, 2.2) * 1.6;                          // fresnel rim
-    vec3 col = (core * (0.55 + 0.45 * plasma) + rim) * intensity;
-    // Soft tonemap so high intensities saturate gracefully in an 8-bit target.
-    col = vec3(1.0) - exp(-col * 1.4);
+    vec3 core = base * (0.55 + 0.45 * plasma) * intensity;
+    vec3 hot = vec3(1.0) * pow(facing, 10.0) * 0.45 * intensity;           // small white-hot centre
+    vec3 rim = base * pow(1.0 - facing, 2.0) * 1.3 * intensity;           // fresnel rim
+    vec3 col = core + hot + rim;
+    // Scale by the brightest channel instead of clamping, so saturated colours keep their hue in an 8-bit target.
+    float peak = max(max(col.r, col.g), col.b);
+    col /= max(1.0, peak);
     fragColor = vec4(col, 1.0);
 }

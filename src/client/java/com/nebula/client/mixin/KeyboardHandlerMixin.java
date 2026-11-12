@@ -12,11 +12,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(KeyboardHandler.class)
 public class KeyboardHandlerMixin {
-	@Inject(method = "keyPress", at = @At("HEAD"))
+	@Inject(method = "keyPress", at = @At("HEAD"), cancellable = true)
 	private void nebula$onKey(long window, int action, KeyEvent event, CallbackInfo ci) {
 		Minecraft mc = Minecraft.getInstance();
 		if (action == GLFW.GLFW_PRESS && window == mc.getWindow().handle() && mc.screen == null && ClientManager.isReady()) {
-			ClientManager.get().modules().onKeyPressed(event.key());
+			// Consume the press that opened a screen, otherwise vanilla forwards it to that screen and it closes again.
+			if (ClientManager.get().modules().onKeyPressed(event.key())) {
+				ci.cancel();
+			}
 		}
 	}
 }
