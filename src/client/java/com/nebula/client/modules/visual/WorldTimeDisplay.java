@@ -31,7 +31,7 @@ public final class WorldTimeDisplay extends Module {
 	public final HudElement element = new Element();
 
 	public WorldTimeDisplay() {
-		super("world_time", "World Time", "Displays the Minecraft world clock", Category.VISUAL, true, false);
+		super("world_time", "World Time", "Displays the Minecraft world clock", Category.INTERFACE, true, false);
 	}
 
 	/** Minecraft day starts at 06:00 (tick 0) and lasts 24000 ticks. */

@@ -28,7 +28,7 @@ public final class Vignette extends Module {
 	private final Animation danger = new Animation(4);
 
 	public Vignette() {
-		super("vignette", "Vignette", "Soft cinematic screen edges, red pulse at low health", Category.VISUAL);
+		super("vignette", "Vignette", "Soft cinematic screen edges, red pulse at low health", Category.INTERFACE);
 	}
 
 	public void render(GuiGraphics g) {

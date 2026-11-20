@@ -54,7 +54,7 @@ public final class CustomSky extends Module implements WorldRenderable {
 	private final Vector4f column = new Vector4f();
 
 	public CustomSky() {
-		super("custom_sky", "Custom Sky", "Procedural starfield, nebula and shooting stars", Category.VISUAL);
+		super("custom_sky", "Custom Sky", "Procedural starfield, nebula and shooting stars", Category.SKY);
 	}
 
 	private Preset palette() {
@@ -62,6 +62,8 @@ public final class CustomSky extends Module implements WorldRenderable {
 			case "Twilight" -> new Preset(0xFF1B1446, 0xFFFF7A59, 0xFFFF4FA3, 0xFF7A5CFF);
 			case "Deep Space" -> new Preset(0xFF010205, 0xFF0A1024, 0xFF3050FF, 0xFFA040FF);
 			case "Aurora Night" -> new Preset(0xFF020A12, 0xFF0B2A33, 0xFF1FD8A0, 0xFF3A7BFF);
+			case "Solar Flare" -> new Preset(0xFF180A04, 0xFF5C2410, 0xFFFF8A3D, 0xFFFFD98A);
+			case "Blood Moon" -> new Preset(0xFF0A0204, 0xFF2E0812, 0xFFFF3B52, 0xFF7A1030);
 			case "Custom" -> new Preset(zenith.argb(), horizon.argb(), nebulaA.argb(), nebulaB.argb());
 			default -> new Preset(0xFF070B1F, 0xFF2A1E5C, 0xFF6A3DFF, 0xFF2EC5FF);
 		};

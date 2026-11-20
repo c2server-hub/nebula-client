@@ -5,6 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.nebula.client.core.ClientManager;
 import com.nebula.client.core.ModuleManager;
 import com.nebula.client.rendering.NebulaPipelines;
+import com.nebula.client.rendering.effects.WorldBloom;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 import net.minecraft.client.Minecraft;
@@ -14,10 +15,12 @@ import org.joml.Matrix4f;
 /** Hooks the 3D effects into the end of the main world pass, after terrain, entities and translucency. */
 public final class WorldEffects implements AutoCloseable {
 	private final OrbRenderer orbs = new OrbRenderer();
+	private final ShieldRenderer shields = new ShieldRenderer();
 	private final TrailRenderer trails = new TrailRenderer();
 	private final OrbFrame frame = new OrbFrame();
 	private final Matrix4f view = new Matrix4f();
 	private final GlowBatch glow = new GlowBatch();
+	private final WorldBloom worldBloom = new WorldBloom();
 	private final long start = System.nanoTime();
 
 	public void register() {
@@ -50,12 +53,19 @@ public final class WorldEffects implements AutoCloseable {
 		if (modules.playerOrbit.isEnabled() && modules.playerOrbit.compute(frame, camera, partialTick)) {
 			orbs.render(frame, target, view);
 		}
+		// Screen-space trackers and the whole-frame bloom close the world pass.
+		SunTracker.INSTANCE.update(worldFrame, mc);
+		if (modules.bloom.isEnabled()) {
+			modules.bloom.apply(worldBloom, target);
+		}
 	}
 
 	@Override
 	public void close() {
 		orbs.close();
+		shields.close();
 		trails.close();
+		worldBloom.close();
 		glow.close();
 	}
 }

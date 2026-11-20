@@ -1,24 +1,24 @@
 {
-	"schemaVersion": 1,
-	"id": "nebula",
-	"version": "${version}",
-	"name": "Nebula Client",
-	"description": "Premium visual client: custom GPU UI engine (SDF shapes, gaussian blur, glass), 3D emissive orbs with bloom, motion trails and a fully interactive ClickGUI.",
-	"authors": ["Nebula"],
-	"contact": {},
-	"license": "CC0-1.0",
-	"icon": "assets/nebula/icon.png",
-	"environment": "client",
-	"entrypoints": {
-		"client": ["com.nebula.client.NebulaClient"]
-	},
-	"mixins": [
-		{ "config": "nebula.client.mixins.json", "environment": "client" }
-	],
-	"depends": {
-		"fabricloader": ">=0.20.1",
-		"minecraft": "~1.21.11",
-		"java": ">=21",
-		"fabric-api": "*"
-	}
+        "schemaVersion": 1,
+        "id": "nebula",
+        "version": "${version}",
+        "name": "Nebula Client",
+        "description": "Premium visual client: custom GPU UI engine (SDF shapes, gaussian blur, glass), cinematic bloom and lens flare, 46 modules in 5 categories, and a fully interactive ClickGUI.",
+        "authors": ["Nebula"],
+        "contact": {},
+        "license": "CC0-1.0",
+        "icon": "assets/nebula/icon.png",
+        "environment": "client",
+        "entrypoints": {
+                "client": ["com.nebula.client.NebulaClient"]
+        },
+        "mixins": [
+                { "config": "nebula.client.mixins.json", "environment": "client" }
+        ],
+        "depends": {
+                "fabricloader": ">=0.20.1",
+                "minecraft": "~1.21.11",
+                "java": ">=21",
+                "fabric-api": "*"
+        }
 }

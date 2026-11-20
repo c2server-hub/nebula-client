@@ -33,7 +33,7 @@ public final class ParticleEffects extends Module {
 	private int ticks;
 
 	public ParticleEffects() {
-		super("particle_effects", "Particle Effects", "Decorative particles around your character", Category.VISUAL);
+		super("particle_effects", "Particle Effects", "Decorative particles around your character", Category.PLAYER);
 	}
 
 	private boolean colorable() {

@@ -37,7 +37,7 @@ public final class HitEffects extends Module implements WorldRenderable {
 	private int nextWave;
 
 	public HitEffects() {
-		super("hit_effects", "Hit Effects", "Glowing spark burst and shockwave when you hit", Category.VISUAL);
+		super("hit_effects", "Hit Effects", "Glowing spark burst and shockwave when you hit", Category.COMBAT);
 	}
 
 	/** Registered once by the client manager; ignored while the module is disabled. */

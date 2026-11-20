@@ -36,7 +36,7 @@ public final class BlockOutline extends Module implements WorldRenderable {
 	private long last;
 
 	public BlockOutline() {
-		super("block_outline", "Block Outline", "Animated glowing selection box that glides between blocks", Category.VISUAL, true, false);
+		super("block_outline", "Block Outline", "Animated glowing selection box that glides between blocks", Category.WORLD, true, false);
 	}
 
 	@Override

@@ -18,7 +18,7 @@ float hash12(vec2 p) {
     return fract((p3.x + p3.y) * p3.z);
 }
 
-float noise2(vec2 p) {
+float valueNoise(vec2 p) {
     vec2 i = floor(p);
     vec2 f = fract(p);
     f = f * f * (3.0 - 2.0 * f);
@@ -29,7 +29,7 @@ float fbm2(vec2 p) {
     float v = 0.0;
     float a = 0.5;
     for (int i = 0; i < 3; i++) {
-        v += a * noise2(p);
+        v += a * valueNoise(p);
         p = mat2(1.6, 1.2, -1.2, 1.6) * p;
         a *= 0.5;
     }
@@ -56,7 +56,7 @@ void main() {
         float ridge = 1.0 - abs(fbm2(p * 1.1 + vec2(warp * 2.4, warp) - flow) * 2.0 - 1.0);
         float curtain = pow(ridge, 9.0);
         // Fine vertical rays along the curtain.
-        curtain *= 0.55 + 0.45 * noise2(vec2(p.x * 9.0 + warp * 6.0, time * 0.4));
+        curtain *= 0.55 + 0.45 * valueNoise(vec2(p.x * 9.0 + warp * 6.0, time * 0.4));
         float profile = smoothstep(0.0, 0.06, k) * exp(-k * 3.2);
         float distanceFade = exp(-t * 0.004);
         vec3 tint = mix(mix(TextureMat[0].rgb, TextureMat[1].rgb, smoothstep(0.0, 0.35, k)), TextureMat[2].rgb, smoothstep(0.3, 0.9, k));

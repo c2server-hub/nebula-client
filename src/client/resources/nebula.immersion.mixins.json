@@ -1,0 +1,13 @@
+{
+	"required": false,
+	"package": "com.nebula.client.mixin.immersion",
+	"compatibilityLevel": "JAVA_21",
+	"client": [
+		"ChannelMixin",
+		"ClientPacketListenerMixin",
+		"GameRendererMixin"
+	],
+	"injectors": {
+		"defaultRequire": 0
+	}
+}

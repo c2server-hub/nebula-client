@@ -35,7 +35,7 @@ public final class CustomCrosshair extends Module {
 	private final Animation cool = new Animation(1, 16);
 
 	public CustomCrosshair() {
-		super("custom_crosshair", "Custom Crosshair", "Smooth dynamic crosshair with cooldown indicator", Category.VISUAL, true, false);
+		super("custom_crosshair", "Custom Crosshair", "Smooth dynamic crosshair with cooldown indicator", Category.INTERFACE, true, false);
 	}
 
 	/** Returns false when the vanilla crosshair should be drawn instead. */

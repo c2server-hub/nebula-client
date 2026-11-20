@@ -25,7 +25,10 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 /** The Nebula ClickGUI: one floating glass window with sidebar, module list and settings panel. */
 public final class ClickGui extends Screen {
@@ -35,15 +38,15 @@ public final class ClickGui extends Screen {
 	private static final float LIST = 232;
 
 	// Remembered across openings, like a real application window.
-	private static Category lastCategory = Category.VISUAL;
+	private static Category lastCategory = Category.SKY;
 	private static Module lastSelected;
 
 	private final Animation open = new Animation(0, 11);
 	private final SearchBar search = new SearchBar();
 	private final ModuleListPanel moduleList = new ModuleListPanel(this::select);
 	private final SettingsPanel settings = new SettingsPanel();
-	private final CategoryTab visualTab;
-	private final CategoryTab interfaceTab;
+	private final Map<Category, CategoryTab> tabs = new EnumMap<>(Category.class);
+	private final List<CategoryTab> navigation = new ArrayList<>();
 	private final CategoryTab resetTab;
 	private final SidebarPanel sidebar;
 	private Category category = lastCategory;
@@ -54,8 +57,12 @@ public final class ClickGui extends Screen {
 
 	public ClickGui() {
 		super(Component.literal("Nebula"));
-		visualTab = new CategoryTab("Visual", CategoryTab.Icon.ORB, () -> setCategory(Category.VISUAL));
-		interfaceTab = new CategoryTab("Interface", CategoryTab.Icon.GRID, () -> setCategory(Category.INTERFACE));
+		// One tab per category, in enum order; the sidebar mirrors the module system.
+		for (Category c : Category.values()) {
+			CategoryTab tab = new CategoryTab(c.displayName(), c.icon(), () -> setCategory(c));
+			tabs.put(c, tab);
+			navigation.add(tab);
+		}
 		CategoryTab themeTab = new CategoryTab("Theme", CategoryTab.Icon.PALETTE, () -> {
 			setCategory(Category.INTERFACE);
 			select(ClientManager.get().modules().themeEditor);
@@ -63,7 +70,7 @@ public final class ClickGui extends Screen {
 		CategoryTab layoutTab = new CategoryTab("HUD Layout", CategoryTab.Icon.LAYOUT, () -> minecraft.setScreen(new HudEditorScreen(this)));
 		CategoryTab saveTab = new CategoryTab("Save config", CategoryTab.Icon.SAVE, () -> ClientManager.get().config().save());
 		resetTab = new CategoryTab("Reset all", CategoryTab.Icon.GRID, this::reset);
-		sidebar = new SidebarPanel(List.of(visualTab, interfaceTab), List.of(themeTab, layoutTab), List.of(saveTab, resetTab));
+		sidebar = new SidebarPanel(navigation, List.of(themeTab, layoutTab), List.of(saveTab, resetTab));
 		settings.show(lastSelected);
 	}
 
@@ -141,12 +148,15 @@ public final class ClickGui extends Screen {
 		float r = Math.max(8, t.radius() + 6);
 		GlowRenderer.glow(g, wx, wy, WIDTH, HEIGHT, r, 40, t.accent(), 0.22F * t.glow());
 		Style.panel(g, t, wx, wy, WIDTH, HEIGHT, r, 1, true);
+		// Specular light along the top edge of the glass window.
+		RoundedRenderer.rect(g, wx + r, wy + 1.5F, WIDTH - 2 * r, 1, 0, ColorUtil.withAlpha(0xFFFFFFFF, 0.25F));
 		// Sidebar sits on a slightly darker layer with a hairline divider.
-		RoundedRenderer.rect(g, wx + 1, wy + 1, SIDEBAR, HEIGHT - 2, r - 1, ColorUtil.withAlpha(t.background(), 0.35F));
+		Style.innerGlass(g, t, wx + 1, wy + 1, SIDEBAR, HEIGHT - 2, r - 1, t.background(), 0.35F);
 		RoundedRenderer.rect(g, wx + SIDEBAR, wy + 12, 1, HEIGHT - 24, 0, t.border());
 
-		visualTab.setSelected(category == Category.VISUAL);
-		interfaceTab.setSelected(category == Category.INTERFACE);
+		for (Map.Entry<Category, CategoryTab> e : tabs.entrySet()) {
+			e.getValue().setSelected(category == e.getKey());
+		}
 		resetTab.setSelected(System.currentTimeMillis() - resetArmedAt < 3000);
 		sidebar.setBounds(wx, wy, SIDEBAR, HEIGHT);
 		sidebar.render(g, t, mx, my);
@@ -157,17 +167,26 @@ public final class ClickGui extends Screen {
 		String subtitle = searching ? "Results across all categories" : category.subtitle();
 		RenderUtils.text(g, title, cx, wy + 14, t.text(), NFont.DISPLAY);
 		RenderUtils.text(g, subtitle, cx, wy + 30, t.textDim(), NFont.TEXT);
+		// Small module counter badge left of the search field.
+		int count = ClientManager.get().modules().search(searching ? null : category, search.query()).size();
+		String badge = count + (count == 1 ? " module" : " modules");
+		float badgeW = RenderUtils.width(badge, NFont.TEXT) * 0.8F + 12;
+		float badgeX = wx + WIDTH - 194 - 8 - badgeW;
+		RoundedRenderer.rect(g, badgeX, wy + 15, badgeW, 15, 7.5F, ColorUtil.withAlpha(t.panel(), 0.55F), 1,
+				ColorUtil.withAlpha(t.border(), 0.6F));
+		RenderUtils.text(g, badge, badgeX + 6, wy + 19.5F, ColorUtil.withAlpha(t.textDim(), 0.9F), NFont.TEXT, 0.8F);
 		search.setBounds(wx + WIDTH - 194, wy + 14, 180, 20);
 		search.render(g, t, mx, my);
 
 		moduleList.filter(category, search.query());
 		moduleList.setSelected(settings.module());
+		Style.innerGlass(g, t, cx - 6, wy + 48, LIST, HEIGHT - 58, Math.min(t.radius(), 12), t.background(), 0.16F);
 		moduleList.setBounds(cx - 6, wy + 48, LIST, HEIGHT - 58);
 		moduleList.render(g, t, mx, my);
 
 		float sx = cx + LIST + 6;
 		float sw = wx + WIDTH - 10 - sx;
-		RoundedRenderer.rect(g, sx, wy + 48, sw, HEIGHT - 58, Math.min(t.radius(), 12), ColorUtil.withAlpha(t.panel(), 0.45F), 1, t.border());
+		Style.innerGlass(g, t, sx, wy + 48, sw, HEIGHT - 58, Math.min(t.radius(), 12), t.panel(), 0.45F);
 		settings.setBounds(sx, wy + 48, sw, HEIGHT - 58);
 		settings.render(g, t, mx, my);
 	}

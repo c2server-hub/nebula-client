@@ -27,7 +27,7 @@ public final class Halo extends Module implements WorldRenderable {
 	private final ColorChoice color = new ColorChoice(add(ColorChoice.modeSetting()), add(new ColorSetting("Color", "Custom halo colour", 0xFFFFD86B)));
 
 	public Halo() {
-		super("halo", "Halo", "Glowing angel ring floating above your head", Category.VISUAL);
+		super("halo", "Halo", "Glowing angel ring floating above your head", Category.PLAYER);
 	}
 
 	@Override

@@ -40,7 +40,7 @@ public final class PlayerOrbit extends Module {
 	private final long start = System.nanoTime();
 
 	public PlayerOrbit() {
-		super("player_orbit", "Player Orbit", "Glowing 3D orbs gravitating around you", Category.VISUAL, true, false);
+		super("player_orbit", "Player Orbit", "Glowing 3D orbs gravitating around you", Category.PLAYER, true, false);
 	}
 
 	/** Fills {@code out} with camera-relative orb positions; returns false when nothing should be drawn. */

@@ -38,6 +38,9 @@ public final class ClientManager {
 		ModuleEvents.addListener(m.modules.notifications::moduleToggled);
 		m.targets.register();
 		m.targets.onAttack(m.modules.hitEffects::onHit);
+		m.targets.onAttack(m.modules.deathFx::onAttack);
+		m.targets.onAttack(m.modules.comboCounter::onAttack);
+		m.targets.onAttack(m.modules.damageNumbers::onAttack);
 		ClientPlayerBlockBreakEvents.AFTER.register((level, player, pos, state) -> m.modules.blockBreak.onBreak(level, pos, state));
 		WorldRenderEvents.BEFORE_BLOCK_OUTLINE.register((context, outline) -> !m.modules.blockOutline.isEnabled());
 		m.config.load();
@@ -47,6 +50,11 @@ public final class ClientManager {
 		m.hud.add(m.modules.customHud.elements.get(2));
 		m.hud.add(m.modules.targetHud.element);
 		m.hud.add(m.modules.worldTime.element);
+		m.hud.add(m.modules.keystrokes.element);
+		m.hud.add(m.modules.potionHud.element);
+		m.hud.add(m.modules.armorHud.element);
+		m.hud.add(m.modules.compass.element);
+		m.hud.add(m.modules.comboCounter.element);
 		m.hud.register();
 		m.worldEffects.register();
 

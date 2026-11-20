@@ -42,4 +42,28 @@ public final class Style {
 		GlowRenderer.glow(g, x, y, w, h, radius, 8, ColorUtil.fade(t.accent(), alpha), 0.6F * t.glow());
 		RoundedRenderer.gradient(g, x, y, w, h, radius, accentGradient(t, alpha));
 	}
+
+	/** Frosted inner layer for surfaces sitting on top of the main glass window. */
+	public static void innerGlass(GuiGraphics g, Theme t, float x, float y, float w, float h, float radius, int tint, float alpha) {
+		if (alpha <= 0.01F) {
+			return;
+		}
+		GuiSettings s = ClientManager.get().modules().guiSettings;
+		int border = ColorUtil.withAlpha(t.border(), alpha);
+		if (s.blur.isOn()) {
+			BlurRenderer.glass(g, x, y, w, h, radius, ColorUtil.withAlpha(tint, alpha * 0.8F), 1, border, s.refraction.floatValue() * 0.55F);
+		} else {
+			RoundedRenderer.rect(g, x, y, w, h, radius, ColorUtil.withAlpha(tint, alpha), 1, border);
+		}
+	}
+
+	/** Frosted card with a hairline border and a specular gloss catching the top edge. */
+	public static void card(GuiGraphics g, Theme t, float x, float y, float w, float h, float radius, int fill, int border, float alpha) {
+		if (alpha <= 0.01F) {
+			return;
+		}
+		RoundedRenderer.rect(g, x, y, w, h, radius, fill, 1, ColorUtil.fade(border, alpha));
+		RoundedRenderer.gradient(g, x + 1.5F, y + 1, Math.max(1, w - 3), Math.max(4, h * 0.22F), radius * 0.8F, Gradient.vertical(
+				ColorUtil.withAlpha(0xFFFFFFFF, 0.13F * alpha), ColorUtil.withAlpha(0xFFFFFFFF, 0F)));
+	}
 }

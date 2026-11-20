@@ -39,7 +39,7 @@ public final class AmbientParticles extends Module implements WorldRenderable {
 	private String lastType = "";
 
 	public AmbientParticles() {
-		super("ambient_particles", "Ambient Particles", "Fireflies, stardust, snow or embers floating around you", Category.VISUAL);
+		super("ambient_particles", "Ambient Particles", "Fireflies, stardust, snow or embers floating around you", Category.WORLD);
 	}
 
 	@Override

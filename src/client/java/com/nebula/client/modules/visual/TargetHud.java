@@ -38,7 +38,7 @@ public final class TargetHud extends Module {
 	private @Nullable LivingEntity target;
 
 	public TargetHud() {
-		super("target_hud", "Target HUD", "Health and info of the entity you are fighting or looking at", Category.VISUAL, true, false);
+		super("target_hud", "Target HUD", "Health and info of the entity you are fighting or looking at", Category.COMBAT, true, false);
 	}
 
 	@Override

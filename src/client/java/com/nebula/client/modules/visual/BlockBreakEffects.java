@@ -35,7 +35,7 @@ public final class BlockBreakEffects extends Module implements WorldRenderable {
 	private int nextGhost;
 
 	public BlockBreakEffects() {
-		super("block_break", "Block Break FX", "Sparks and a ghost box when you break blocks", Category.VISUAL);
+		super("block_break", "Block Break FX", "Sparks and a ghost box when you break blocks", Category.WORLD);
 	}
 
 	public void onBreak(ClientLevel level, BlockPos pos, BlockState state) {

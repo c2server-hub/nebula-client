@@ -1,0 +1,12 @@
+{
+	"required": false,
+	"package": "com.nebula.client.mixin.aura",
+	"compatibilityLevel": "JAVA_21",
+	"client": [
+		"EntityTeamColorMixin",
+		"MinecraftGlowMixin"
+	],
+	"injectors": {
+		"defaultRequire": 0
+	}
+}

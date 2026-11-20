@@ -37,7 +37,7 @@ public final class Aurora extends Module implements WorldRenderable {
 	private final Vector4f column = new Vector4f();
 
 	public Aurora() {
-		super("aurora", "Aurora", "Animated northern lights in the sky", Category.VISUAL);
+		super("aurora", "Aurora", "Animated northern lights in the sky", Category.SKY);
 	}
 
 	@Override

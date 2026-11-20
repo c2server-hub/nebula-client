@@ -36,6 +36,9 @@ void main() {
     // GUI y grows downwards, framebuffer y grows upwards.
     uv += vec2(-n.x, n.y) * lens * vParams.y * 18.0 / ScreenSize;
     vec3 backdrop = texture(Sampler0, uv).rgb;
+    // Frosted glass keeps colours alive: a slight saturation boost, like polished crystal.
+    float luma = dot(backdrop, vec3(0.2126, 0.7152, 0.0722));
+    backdrop = mix(vec3(luma), backdrop, 1.07);
 
     vec3 glass = mix(backdrop, vFill.rgb, vFill.a);
     // Specular rim lit from the top-left plus a faint vertical sheen.

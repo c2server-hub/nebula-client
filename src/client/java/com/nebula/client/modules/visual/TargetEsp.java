@@ -39,7 +39,7 @@ public final class TargetEsp extends Module implements WorldRenderable {
 	private @Nullable LivingEntity shown;
 
 	public TargetEsp() {
-		super("target_esp", "Target ESP", "Scanning glow ring and comets around your target", Category.VISUAL);
+		super("target_esp", "Target ESP", "Scanning glow ring and comets around your target", Category.COMBAT);
 	}
 
 	@Override

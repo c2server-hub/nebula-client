@@ -38,7 +38,7 @@ public final class MotionTrails extends Module {
 	private final float[] px = new float[CAPACITY], py = new float[CAPACITY], pz = new float[CAPACITY], ages = new float[CAPACITY];
 
 	public MotionTrails() {
-		super("motion_trails", "Motion Trails", "Animated light ribbon following your movement", Category.VISUAL);
+		super("motion_trails", "Motion Trails", "Animated light ribbon following your movement", Category.PLAYER);
 	}
 
 	@Override

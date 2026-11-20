@@ -51,6 +51,8 @@ public final class NebulaPipelines {
 	public static final RenderPipeline GAUSSIAN = post("gaussian", true).build();
 	public static final RenderPipeline DOWNSAMPLE = post("downsample", false).build();
 	public static final RenderPipeline COMPOSITE_ADD = post("composite", true).withBlend(BlendFunction.ADDITIVE).build();
+	/** Soft-knee bright pass feeding the whole-frame world bloom. Radius = threshold. */
+	public static final RenderPipeline BRIGHTPASS = post("brightpass", true).build();
 
 	public static final RenderPipeline ORB = RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET)
 		.withLocation(id("pipeline/orb"))
@@ -103,9 +105,26 @@ public final class NebulaPipelines {
 	/** Full-screen far-plane passes that only touch sky pixels (see sky.vsh). */
 	public static final RenderPipeline SKY = skyPass("sky", BlendFunction.TRANSLUCENT);
 	public static final RenderPipeline AURORA = skyPass("aurora", BlendFunction.ADDITIVE);
+	/** Custom sun and moon on the far plane, angle-based so terrain occludes them (see celestial.fsh). */
+	public static final RenderPipeline CELESTIAL = skyPass("celestial", BlendFunction.TRANSLUCENT);
 
-	public static final List<RenderPipeline> ALL = List.of(SHAPE, GLASS, GAUSSIAN, DOWNSAMPLE, COMPOSITE_ADD, ORB, ORB_EMISSIVE, ORB_HALO, TRAIL,
-		GLOW_RING, GLOW_SPARK, BLOCK_GLOW, SKY, AURORA);
+	/** Energy feather blades attached to players. */
+	public static final RenderPipeline WINGS = glowQuad("wings");
+
+	/** Fresnel shield bubble over sphere geometry (reuses the orb vertex shader). */
+	public static final RenderPipeline SHIELD = RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET)
+			.withLocation(id("pipeline/shield"))
+			.withVertexShader(id("core/orb"))
+			.withFragmentShader(id("core/shield"))
+			.withVertexFormat(DefaultVertexFormat.POSITION, VertexFormat.Mode.TRIANGLES)
+			.withBlend(BlendFunction.ADDITIVE)
+			.withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
+			.withDepthWrite(false)
+			.withCull(false)
+			.build();
+
+	public static final List<RenderPipeline> ALL = List.of(SHAPE, GLASS, GAUSSIAN, DOWNSAMPLE, COMPOSITE_ADD, BRIGHTPASS, ORB, ORB_EMISSIVE, ORB_HALO, TRAIL,
+		GLOW_RING, GLOW_SPARK, BLOCK_GLOW, SKY, AURORA, CELESTIAL, WINGS, SHIELD);
 
 	private static RenderPipeline skyPass(String fragment, BlendFunction blend) {
 		return RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET)

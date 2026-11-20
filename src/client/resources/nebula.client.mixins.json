@@ -4,6 +4,7 @@
 	"compatibilityLevel": "JAVA_21",
 	"client": [
 		"BufferBuilderAccessor",
+		"GameRendererMixin",
 		"GuiRendererMixin",
 		"KeyboardHandlerMixin",
 		"LevelRendererMixin"

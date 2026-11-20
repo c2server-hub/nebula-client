@@ -69,11 +69,13 @@ Le projet a été généré avec le générateur officiel Fabric (archive `nebul
 - **Target ESP** — autour de la cible (regardée ou dernière frappée) : colonne d'anneaux qui scanne de haut en bas et comètes en orbite avec traînée ; style, vitesse, nombre/taille des comètes, couleur.
 - **Hit Effects** — à chaque coup : gerbe d'étincelles balistiques (avec traînée) émise du côté du joueur + onde de choc ; nombre, vitesse, durée, taille, gravité, couleur.
 - **Custom Crosshair** — viseur SDF remplaçant le vanilla : Cross, Cross + Dot, Dot, Circle ; écart dynamique (déplacement, recharge), contour, halo, barre de recharge d'attaque, teinte rouge sur une entité.
-- **Custom Sky** — ciel procédural : dégradé zénith/horizon, champ d'étoiles scintillantes en rotation lente, bande de nébuleuse avec poussières sombres, étoiles filantes ; préréglages (Nebula, Twilight, Deep Space, Aurora Night, Custom), densité d'étoiles, nébuleuse, opacité, « toujours / la nuit seulement », fondu dans le brouillard à l'horizon, masquage des nuages vanilla.
+- **Custom Sky** — ciel procédural en **deux modes**. **Nebula** : dégradé zénith/horizon, champ d'étoiles scintillantes en rotation lente, bande de nébuleuse avec poussières sombres, étoiles filantes ; préréglages (Nebula, Twilight, Deep Space, Aurora Night, Custom). **Celestial** : atmosphère pilotée par l'heure du monde, disque solaire + couronne, lune avec phase, étoiles qui s'effacent le jour, banc de nuages éclairé et animé, palettes (Golden Hour, Noon, Blood Moon, Alien Dusk, Custom), couverture/vitesse/détail des nuages. Communs : densité d'étoiles, opacité, « toujours / la nuit seulement », fondu dans le brouillard, masquage des nuages vanilla.
 - **Aurora** — aurores boréales animées en rideaux : palettes (Borealis, Violet, Fire, Thème, Custom), intensité, vitesse, altitude, qualité, toujours / la nuit seulement ; atténuées sous la pluie.
 - **Block Outline** — remplace le contour de bloc : boîte lumineuse aux arêtes nettes (épaisseur constante en pixels), coins brillants, remplissage pulsé ; glisse en douceur d'un bloc à l'autre et apparaît/disparaît en fondu ; couleur du thème, perso, arc-en-ciel ou couleur du bloc visé.
 - **Block Break FX** — quand on casse un bloc : boîte fantôme qui s'agrandit et s'éteint + gerbe d'étincelles, dans la couleur du bloc cassé (ou couleur choisie).
 - **Ambient Particles** — particules d'ambiance lumineuses autour du joueur : Fireflies (lucioles qui clignotent), Stardust, Snow, Embers, Spirits ; nombre, rayon, taille, luminosité, couleurs.
+- **Item Beams** — faisceau vertical au-dessus des objets au sol, couleur de rareté (ou thème/perso), anneau au sol, étincelles montantes ; filtre « Uncommon and above » par défaut, portée réglable, rendu depth-testé.
+- **Projectile Trails** — rubans-comètes derrière flèches, tridents, boules de neige, potions et boules de feu ; couleur par type, aura ou personnalisée. Les perles d'Ender restent gérées par Energy Trails.
 - **Vignette** — assombrissement cinématique des bords de l'écran (noir, thème ou perso), pulsation rouge « battement de cœur » sous 30 % de vie.
 
 **Interface**
@@ -196,3 +198,84 @@ Testé en lançant Minecraft 1.21.11 + Fabric API dans cet environnement (Xvfb, 
 ## Licence
 
 CC0-1.0 (héritée du template). Police Inter : SIL Open Font License, voir `assets/nebula/font/inter_license.txt`.
+
+## Immersion
+
+Voir [docs/IMMERSION.md](docs/IMMERSION.md) : modules immersifs (caméra, mains, atmosphère, eau, son, HUD diegétique) et presets Cinematic / Subtle / Vanilla+.
+## CounterCraft Knives — couteaux CS intégrés au client
+
+Le mod embarque **directement dans le jar** les modèles 3D, textures et définitions d'items du pack CounterCraft Knife Pack (catégorie Immersion, module **CounterCraft Knives**) : **aucun resource pack séparé n'est nécessaire**. Les couteaux s'activent en nommant une épée ou une hache (enclume, ou commande ci-dessous) du nom exact d'un couteau.
+
+**13 couteaux disponibles** (noms exacts) : `Bayonet`, `Bayonet Gradient`, `Bayonet Violet`, `M9 Bayonet`, `M9 Bayonet Gradient`, `M9 Bayonet Violet`, `Ursus`, `Ursus Gem`, `Ursus Violet`, `Stilletto`, `Dark Stilletto`, `Guonith`, `Guonith Au` — sur toutes les épées (bois → netherite, cuivre), toutes les haches et le mace.
+
+Exemple en commande :
+```mcfunction
+/give @s minecraft:iron_sword[minecraft:custom_name="M9 Bayonet"]
+```
+
+**Animations façon Counter-Strike** (remplacent les animations génériques de Hand Animations quand un couteau est en main) :
+
+| Action | Effet |
+|---|---|
+| Changer de slot vers le couteau | **Draw** : la lame sort du fourreau, pivot bas + rotation avec léger dépassement (≈0,45 s, réglable) |
+| Touche **G** (modifiable) | **Inspect** CS : la lame se soulève, fait un tour complet sur un axe incliné en montrant le dos dentelé, micro-vibrations pendant la tenue, retour net (2,6 s réglables) |
+| Clic gauche (attaque) | **Slash** : coup diagonal alterné gauche/droite (ou direction forcée), piqué du bout de lame et petite avance |
+| Clic droit dans le vide | **Stab** : armé en retrait, puis coup de pointe en avant (0,5 s) avec son |
+| Idle | **CS stance** : pose de garde légèrement relevée + micro-bruissements respiratoires ; **weapon sway** sur le mouvement de caméra |
+
+Sons discrets (tirage, inspect, slash, stab) via des sons vanilla pitchés — désactivables. Intensité globale réglable (0–2×). Tous les réglages persistent dans la config (catégorie *Immersion → CounterCraft Knives*).
+
+Notes :
+- Les animations ne s'appliquent qu'à la main principale (le couteau renommé en main secondaire garde le rendu du pack, sans animations).
+- Le stab se déclenche aussi sur les blocs non interactifs (comme en CS), mais pas sur les entités (pas de conflit avec les PNJ/panneaux).
+- Vérifié en jeu sur le vrai client (modèles + toutes les animations testés en première personne) ; `G` est le bind par défaut car `F` est le bind vanilla « échanger avec la main secondaire ».
+
+## Effets joueur (Aura Glow, Energy Trails, Step FX, Death FX)
+
+Quatre modules de la catégorie Visual, rendus via `GlowBatch` avec trois nouveaux shaders (`glow_ribbon`, `glow_soft`, `glow_rune`).
+
+- **Aura Glow** : couleur fixe / cycle RGB / dégradé tête → pieds / thème, pulsation en BPM, couleur réactive (vie basse → rouge, sprint → cyan, potion → couleur de l'effet, dégâts → flash). Contour vanilla optionnel teinté par l'aura. Orbitales (étincelles avec traînée, runes, orbes) dont le rayon et la vitesse suivent le mouvement. Cercle magique procédural (anneaux, runes, hexagramme) qui s'étend au sprint et au saut. Brume d'énergie (plus dense à l'arrêt), lueur au sol, yeux émissifs (option : seulement dans le noir), arme enchantée qui fait pulser l'aura, totem qui ajoute un halo doré.
+- **Energy Trails** : rubans sur le dos, les mains, les pieds, la pointe de l'arme et le bout des ailes en élytres. Couleur selon l'aura, la vitesse ou l'action (dash, saut, élytres, sprint). Arc de swing à chaque coup, afterimages (dash / sprint / toujours), traînée violette derrière les perles d'Ender.
+- **Step FX** : empreintes lumineuses, ondulations sur l'eau, étincelles sur la pierre au sprint, onde de choc à l'atterrissage (hauteur de chute minimale réglable).
+- **Death FX** : dissolution en particules lumineuses à la mort, flash, anneau et colonne d'étincelles au respawn.
+
+Limites :
+- Le contour utilise le glow vanilla : visible à travers les murs, épaisseur fixe, pas de fade selon la distance.
+- Les points d'ancrage et les afterimages viennent d'un squelette approximatif recalculé à partir des formules d'animation vanilla. Les afterimages sont des silhouettes d'énergie, pas des copies du modèle.
+- Pas encore faits : shell additif, rim light fresnel (il faut s'accrocher au pipeline de rendu des entités de 1.21.11), vraie lumière dynamique, reflets.
+- Vanilla n'a pas de double saut : l'onde de choc se déclenche seulement à l'atterrissage.
+- Le code compile (`gradlew build` OK) mais n'a pas été testé en jeu dans cet environnement.
+
+## Ciel céleste, Item Beams et Projectile Trails
+
+### Custom Sky → mode `Celestial`
+
+Le ciel reste **un seul module et une seule passe plein écran**. Un troisième module de ciel aurait superposé deux passes, deux palettes et deux jeux de réglages contradictoires sur les mêmes pixels. Le module expose donc `Sky = Nebula | Celestial`, et les réglages propres à chaque mode sont masqués via `visibleWhen`.
+
+`Celestial` est piloté par l'heure réelle du monde (`getDayTime` + tick partiel) :
+
+- dégradé atmosphérique jour/nuit calculé depuis l'élévation du soleil ;
+- disque solaire et couronne, disque lunaire avec phase (jour 0 = pleine lune, comme vanilla) ;
+- étoiles qui s'effacent le jour ;
+- banc de nuages projeté sur un dôme, pas sur un plan infini : c'est ce qui évite les traînées radiales près de l'horizon, visibles sur la première prévisualisation ;
+- nuages éclairés côté soleil (échantillon décalé) et animés par le vent ;
+- pluie : luminosité réduite, palette grisée, couverture nuageuse augmentée ;
+- palettes Golden Hour, Noon, Blood Moon, Alien Dusk, Custom.
+
+Les paramètres voyagent dans `SkyPass` sans uniform supplémentaire : `TextureMat` colonnes 0–3 = zénith / horizon / soleil / ombre des nuages (leur `w` porte la direction du soleil et la phase lunaire), `ColorModulator` = opacité, densité d'étoiles, couverture, temps, `ModelOffset` = raccord brouillard, vitesse et détail des nuages.
+
+Coût : une passe plein écran se paie au fragment, donc le détail des nuages (3 octaves par défaut) est le principal levier — descendre à 2 sur GPU intégré. Les nuages se coupent sans perdre le reste du ciel.
+
+### Item Beams
+
+Faisceaux verticaux au-dessus des objets au sol, couleur de rareté (ou thème/perso), anneau au sol et étincelles montantes. Le filtre « Uncommon and above » est actif par défaut pour éviter des centaines de faisceaux dans une ferme ; portée 24 m par défaut. Le rendu est depth-testé : c'est de la lumière dans le monde, pas un wallhack.
+
+### Projectile Trails
+
+Rubans-comètes derrière flèches, tridents, boules de neige, potions et boules de feu, avec couleur par type, par aura ou personnalisée. Les perles d'Ender sont volontairement exclues : Energy Trails s'en occupe déjà. Un seul parcours d'entités par image, et le batch (donc la géométrie et le draw call) n'est ouvert que si un projectile est visible ou qu'une trail est encore en train de s'effacer.
+
+### Vérifications
+
+- `gradlew build` OK (Loom 1.19.4), jar `nebula-1.0.0.jar` produit avec le shader et les deux modules.
+- `sky_celestial.fsh` validé par compilation GLSL (WebGL2 / SwiftShader) et prévisualisé hors jeu en quatre ambiances (Golden Hour, Noon, nuit, Blood Moon) ; deux défauts corrigés à ce stade (traînées radiales, étoiles trop basses).
+- Pas de partie testée ici : les pipelines sont compilés au premier rendu et un échec est signalé dans le log (`[Nebula] Shader pipeline ... failed to compile`).

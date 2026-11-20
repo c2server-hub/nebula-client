@@ -54,7 +54,7 @@ public final class ModuleButton extends UiComponent {
 		if (sel > 0.01F) {
 			GlowRenderer.glow(g, lx, y, w, h, 10, 10, t.accent(), 0.35F * sel * t.glow());
 		}
-		RoundedRenderer.rect(g, lx, y, w, h, Math.min(t.radius(), 12), ColorUtil.withAlpha(base, (0.55F + 0.2F * hv) * ap), 1, ColorUtil.fade(border, ap));
+		com.nebula.client.gui.Style.card(g, t, lx, y, w, h, Math.min(t.radius(), 12), ColorUtil.withAlpha(base, (0.5F + 0.22F * hv) * ap), border, ap * (0.75F + 0.25F * hv));
 
 		// Status dot.
 		int dot = ColorUtil.mix(ColorUtil.withAlpha(t.textDim(), 0.5F), t.accent(), on);

@@ -33,7 +33,46 @@ public final class HudManager {
 				ClientManager.get().modules().vignette.render(g);
 			}
 		});
+		HudElementRegistry.addFirst(Identifier.fromNamespaceAndPath(NebulaClient.MOD_ID, "hurt_flash"), (g, delta) -> {
+			if (ClientManager.isReady() && ClientManager.get().modules().hurtEffects.isEnabled()) {
+				ClientManager.get().modules().hurtEffects.renderFlash(g);
+			}
+		});
+		// Order among the addFirst layers: flare first, then hurt flash, void fog, vignette on top.
+		HudElementRegistry.addFirst(Identifier.fromNamespaceAndPath(NebulaClient.MOD_ID, "lens_flare"), (g, delta) -> {
+			if (ClientManager.isReady() && ClientManager.get().modules().lensFlare.isEnabled()) {
+				ClientManager.get().modules().lensFlare.render(g);
+			}
+		});
+		HudElementRegistry.addFirst(Identifier.fromNamespaceAndPath(NebulaClient.MOD_ID, "portal_tint"), (g, delta) -> {
+			if (ClientManager.isReady() && ClientManager.get().modules().portalFx.isEnabled()) {
+				ClientManager.get().modules().portalFx.renderHud(g);
+			}
+		});
+		HudElementRegistry.addFirst(Identifier.fromNamespaceAndPath(NebulaClient.MOD_ID, "void_fog"), (g, delta) -> {
+			if (ClientManager.isReady() && ClientManager.get().modules().voidFog.isEnabled()) {
+				ClientManager.get().modules().voidFog.render(g);
+			}
+		});
+		// Full-screen speed lines sit under every HUD panel.
+		HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(NebulaClient.MOD_ID, "sprint_fx"), (g, delta) -> {
+			if (ClientManager.isReady() && ClientManager.get().modules().sprintFx.isEnabled()) {
+				ClientManager.get().modules().sprintFx.render(g);
+			}
+		});
+		// Damage numbers are anchored in the world; they draw under panels but above the streaks.
+		HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(NebulaClient.MOD_ID, "damage_numbers"), (g, delta) -> {
+			if (ClientManager.isReady() && ClientManager.get().modules().damageNumbers.isEnabled()) {
+				ClientManager.get().modules().damageNumbers.renderHud(g, Theme.current());
+			}
+		});
 		HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(NebulaClient.MOD_ID, "hud"), this::render);
+		// The use-progress ring wraps the crosshair, so it draws above everything else.
+		HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(NebulaClient.MOD_ID, "item_use"), (g, delta) -> {
+			if (ClientManager.isReady() && ClientManager.get().modules().itemUse.isEnabled()) {
+				ClientManager.get().modules().itemUse.render(g, Theme.current());
+			}
+		});
 		HudElementRegistry.replaceElement(VanillaHudElements.CROSSHAIR, vanilla -> (g, delta) -> {
 			if (!ClientManager.isReady() || !ClientManager.get().modules().crosshair.render(g)) {
 				vanilla.render(g, delta);

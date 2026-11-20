@@ -34,7 +34,7 @@ public final class JumpCircles extends Module implements WorldRenderable {
 	private boolean wasOnGround = true;
 
 	public JumpCircles() {
-		super("jump_circles", "Jump Circles", "Glowing shock rings when you jump and land", Category.VISUAL);
+		super("jump_circles", "Jump Circles", "Glowing shock rings when you jump and land", Category.PLAYER);
 	}
 
 	@Override

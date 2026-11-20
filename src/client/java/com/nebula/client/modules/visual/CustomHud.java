@@ -42,7 +42,7 @@ public final class CustomHud extends Module {
 	public final List<HudElement> elements = new ArrayList<>();
 
 	public CustomHud() {
-		super("custom_hud", "Custom HUD", "Watermark, info panel and module list", Category.VISUAL, true, false);
+		super("custom_hud", "Custom HUD", "Watermark, info panel and module list", Category.INTERFACE, true, false);
 		add(new ActionSetting("Edit layout", "Drag HUD elements to reposition them", () -> Minecraft.getInstance().setScreen(new HudEditorScreen(Minecraft.getInstance().screen))));
 		elements.add(new Watermark());
 		elements.add(new Info());
